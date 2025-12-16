@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>SPG Calculator — Command Mode</title>
+    <title>SPG Calculator — Smart Mode</title>
     <style>
         /* ESTILOS BASE */
         :root {
@@ -149,7 +149,6 @@
             border-radius: 12px;
             padding: 16px;
             font-size: 20px;
-            /* Reduced slightly for long strings */
             color: #fff;
             font-family: monospace;
             outline: none;
@@ -165,6 +164,20 @@
         #commandInput::placeholder {
             color: #30363d;
             font-style: italic;
+            font-size: 16px;
+        }
+
+        .input-hint {
+            font-size: 11px;
+            color: #8b949e;
+            margin-top: 4px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .hint-item span {
+            color: var(--highlight);
+            font-weight: bold;
         }
 
         /* LIVE PREVIEW TAGS */
@@ -252,6 +265,11 @@
         .tag.dusk {
             border-color: var(--c-dusk);
             color: var(--c-dusk);
+        }
+
+        .tag.neutral {
+            border-color: var(--c-neutral);
+            color: var(--c-neutral);
         }
 
 
@@ -343,7 +361,7 @@
 
         <!-- 1. Estáticas: Tu Axie (Solo STAB) -->
         <div>
-            <label class="section-label">Tu Axie (STAB)</label>
+            <label class="section-label">Tu Axie (STAB / Default)</label>
             <div class="attacker-selector" id="attackerSelector">
                 <div class="atk-btn active" data-value="aqua" style="color:var(--c-aqua)">AQ</div>
                 <div class="atk-btn" data-value="bird" style="color:var(--c-bird)">BI</div>
@@ -361,8 +379,15 @@
         <div class="command-container">
             <label class="section-label">Escribe tu combo</label>
             <!-- Placeholder instructions -->
-            <input type="text" id="commandInput" placeholder="Ej: 120A + 110P + 80B-2" autocomplete="off" autofocus
+            <input type="text" id="commandInput" placeholder="Ej: 120 + 200P-2 150*1" autocomplete="off" autofocus
                 spellcheck="false">
+
+            <div class="input-hint">
+                <div class="hint-item"><span>+</span> Separa</div>
+                <div class="hint-item"><span>*</span> Buff</div>
+                <div class="hint-item"><span>-</span> Debuff</div>
+                <div class="hint-item"><span>N</span> Neutro</div>
+            </div>
 
             <!-- Live parsed tags -->
             <div class="preview-tags" id="previewTags">
@@ -418,25 +443,31 @@
         function parseCommand(text) {
             state.parsedCards = [];
 
-            // 1. Normalize: Remove ' + ' widely used as separator, replace with space
-            // Also remove commas
-            let clean = text.replace(/,/g, ' ').replace(/\s\+\s/g, ' ');
+            // 1. Separate by '+' OR whitespace
+            // This supports "120+120" (fastest), "120 + 120" (clean code), "120 120" (lazy)
+            let parts = text.split(/[\+\s]+/);
 
-            // 2. Split by whitespace
-            let tokens = clean.trim().split(/\s+/);
+            parts.forEach(part => {
+                let clean = part.trim();
+                if (!clean) return;
 
-            tokens.forEach(token => {
-                if (!token) return;
+                // Regex for token structure:
+                // Start: Numbers (Damage)
+                // Middle: Letters (Class) - Optional
+                // End: Modifiers (* or - followed by optional number)
 
-                // Regex to extract parts:
-                // ^(\d+)  -> Start with numbers (Damage)
-                // ([a-zA-Z]*)? -> Optional Letters (Class)
-                // ([+-]) -> Optional Modifier Sign
-                // (\d*)? -> Optional Modifier Value
+                // Example: 120A*2
+                // Dmg: 120
+                // Class: A
+                // Mod: *2
 
-                // Improved Regex for '120P-3', '120A+', '120'
-                const regex = /^(\d+)([a-zA-Z]*)(?:([+-])(\d*))?$/;
-                const match = token.match(regex);
+                // Complex Regex to capture everything
+                // ^(\d+)       -> Group 1: Damage (Digits at start)
+                // ([a-zA-Z]*)  -> Group 2: Class Code (Letters)
+                // (?:([\*\-])(\d*))? -> Group 3 (Sign) & 4 (Value) - Non capturing group for modifier part
+
+                const regex = /^(\d+)([a-zA-Z]*)(?:([\*\-])(\d*))?$/;
+                const match = clean.match(regex);
 
                 if (match) {
                     const dmg = parseInt(match[1]);
@@ -444,30 +475,34 @@
                     const modSign = match[3];
                     let modValStr = match[4];
 
-                    // Resolve Class
-                    let cardClass = resolveClass(code);
+                    // Resolve Class (If empty code, use ATTACKER CLASS)
+                    let cardClass = '';
+                    if (code === '') {
+                        cardClass = state.attackerClass; // DEFAULT INHERITANCE
+                    } else {
+                        cardClass = resolveClass(code);
+                    }
 
                     // Resolve Modifier
                     let buff = 0;
                     let debuff = 0;
 
                     if (modSign) {
-                        // If sign exists but no number (e.g. "+"), default to 1
                         let val = (modValStr === '' || modValStr === undefined) ? 1 : parseInt(modValStr);
-                        if (modSign === '+') buff = val;
+                        // Now * is Buff, - is Debuff
+                        if (modSign === '*') buff = val;
                         if (modSign === '-') debuff = val;
                     }
 
-                    // Limit Buffs/Debuffs to 5
+                    // Limit Loop
                     buff = Math.min(5, buff);
                     debuff = Math.min(5, debuff);
 
                     state.parsedCards.push({
                         damage: dmg,
-                        class: cardClass, // 'neutral' if empty
+                        class: cardClass,
                         buffs: buff,
-                        debuffs: debuff,
-                        rawCode: code
+                        debuffs: debuff
                     });
                 }
             });
@@ -477,23 +512,22 @@
         }
 
         function resolveClass(code) {
-            if (!code) return 'neutral';
+            if (!code || code === 'n') return 'neutral';
 
             if (code.startsWith('a')) return 'aqua';
             if (code.startsWith('p')) return 'plant';
             if (code.startsWith('r')) return 'reptile';
 
-            // 'b' ambiguity
-            if (code.startsWith('bi')) return 'bird'; // Bird
-            if (code.startsWith('bu')) return 'bug'; // Bug
-            if (code.startsWith('b')) return 'beast'; // Default B -> Beast
+            if (code.startsWith('bi')) return 'bird';
+            if (code.startsWith('bu')) return 'bug';
+            if (code.startsWith('b')) return 'beast'; // Default B
 
             if (code.startsWith('m')) return 'mech';
-            if (code.startsWith('d')) return 'dawn'; // Could be Dusk too if DU?
+            if (code.startsWith('d') && !code.startsWith('du')) return 'dawn';
             if (code.startsWith('du')) return 'dusk';
-            if (code.startsWith('s')) return 'dusk'; // Sombra
+            if (code.startsWith('s')) return 'dusk';
 
-            // Fallback/Aliases
+            // Fallback aliases
             if (code === 'j') return 'bird';
             if (code === 'v') return 'bird';
             if (code === 'e') return 'beast';
@@ -513,8 +547,8 @@
                 if (card.buffs > 0) modHTML = `<span class="tag-mod pos">+${card.buffs}</span>`;
                 if (card.debuffs > 0) modHTML = `<span class="tag-mod neg">-${card.debuffs}</span>`;
 
-                // Short class name
-                let className = card.class === 'neutral' ? '?' : card.class.substring(0, 2).toUpperCase();
+                // Display Class Name
+                let className = card.class === 'neutral' ? 'NE' : card.class.substring(0, 2).toUpperCase();
 
                 div.innerHTML = `<span class="tag-dmg">${card.damage}</span> ${className} ${modHTML}`;
                 container.appendChild(div);
@@ -534,7 +568,6 @@
                 if (dmgStep1 < 0) dmgStep1 = 0;
 
                 if (card.class === 'neutral') {
-                    // Neutral damage added flat to all
                     totalPlant += dmgStep1;
                     totalAqua += dmgStep1;
                     totalBeast += dmgStep1;
@@ -542,6 +575,7 @@
                 }
 
                 // 2. STAB
+                // Important: card.class might be inferred default.
                 let stab = (card.class === state.attackerClass) ? 1.10 : 1.0;
                 let dmgStep2 = Math.floor(dmgStep1 * stab);
 
