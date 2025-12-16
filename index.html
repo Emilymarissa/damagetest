@@ -37,6 +37,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            /* Prevent pull-to-refresh on mobile if possible */
+            overscroll-behavior-y: none;
         }
 
         /* Contenedor Principal */
@@ -48,11 +50,11 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-top: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 24px;
-            padding: 30px;
+            padding: 24px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 20px;
             position: relative;
             overflow: hidden;
             max-height: 95vh;
@@ -61,12 +63,12 @@
         /* Header */
         .header {
             text-align: center;
-            margin-bottom: 5px;
+            margin-bottom: 0;
             flex-shrink: 0;
         }
 
         .header h1 {
-            font-size: 28px;
+            font-size: 24px;
             margin: 0;
             background: linear-gradient(135deg, #fff, #0ff);
             -webkit-background-clip: text;
@@ -75,31 +77,33 @@
         }
 
         .header-subtitle {
-            font-size: 11px;
+            font-size: 10px;
             color: #8b949e;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
         .section-label {
-            font-size: 12px;
+            font-size: 11px;
             color: #8b949e;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: block;
         }
 
         /* ATTACKER CLASS SELECTOR (Compacto) */
         .attacker-selector {
             display: flex;
-            gap: 5px;
+            gap: 8px;
+            /* Bigger touch targets */
             overflow-x: auto;
             padding-bottom: 5px;
             scrollbar-width: none;
-            justify-content: center;
+            justify-content: start;
+            /* Align start for scrolling */
         }
 
         .attacker-selector::-webkit-scrollbar {
@@ -108,8 +112,8 @@
 
         .atk-btn {
             flex: 0 0 auto;
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             border: 2px solid var(--border);
             background: #161b22;
@@ -121,10 +125,7 @@
             font-size: 10px;
             font-weight: bold;
             color: #8b949e;
-        }
-
-        .atk-btn:hover {
-            transform: scale(1.1);
+            user-select: none;
         }
 
         .atk-btn.active {
@@ -139,7 +140,7 @@
         .command-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         #commandInput {
@@ -147,69 +148,58 @@
             background: #0d1117;
             border: 2px solid var(--border);
             border-radius: 12px;
-            padding: 16px;
-            font-size: 20px;
+            padding: 12px;
+            font-size: 18px;
             color: #fff;
             font-family: monospace;
             outline: none;
             box-sizing: border-box;
             transition: border-color 0.2s;
+            /* Prevent native keyboard on readOnly or handled via JS? 
+       Actually user might want to type manually too. */
         }
 
         #commandInput:focus {
             border-color: var(--highlight);
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
         }
 
         #commandInput::placeholder {
             color: #30363d;
             font-style: italic;
-            font-size: 16px;
+            font-size: 14px;
         }
 
-        .input-hint {
-            font-size: 11px;
-            color: #8b949e;
-            margin-top: 4px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .hint-item span {
-            color: var(--highlight);
-            font-weight: bold;
-        }
 
         /* LIVE PREVIEW TAGS */
         .preview-tags {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            min-height: 30px;
+            gap: 6px;
+            min-height: 28px;
         }
 
         .tag {
             background: #161b22;
             border: 1px solid var(--border);
             border-radius: 6px;
-            padding: 4px 8px;
-            font-size: 12px;
+            padding: 2px 6px;
+            font-size: 11px;
             font-family: monospace;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             color: #c9d1d9;
         }
 
         .tag-dmg {
             font-weight: bold;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .tag-mod {
-            font-size: 11px;
-            padding: 2px 4px;
-            border-radius: 4px;
+            font-size: 9px;
+            padding: 1px 3px;
+            border-radius: 3px;
             background: rgba(255, 255, 255, 0.1);
         }
 
@@ -221,7 +211,7 @@
             color: #ff5341;
         }
 
-        /* Class Colors for Tags */
+        /* Class Colors defined in root */
         .tag.aqua {
             border-color: var(--c-aqua);
             color: var(--c-aqua);
@@ -273,79 +263,150 @@
         }
 
 
-        /* Resultados Fixed Bottom en Mobile o dentro del flow en desktop */
+        /* Resultados Compactos */
         .results-container {
             background: #0d1117;
-            border-radius: 16px;
+            border-radius: 12px;
             border: 1px solid var(--border);
-            margin-top: auto;
-            /* Empujar al fondo */
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            text-align: center;
         }
 
-        .result-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 20px;
-            border-bottom: 1px solid #21262d;
+        .result-box {
+            padding: 10px 5px;
+            border-right: 1px solid #21262d;
         }
 
-        .result-row:last-child {
-            border-bottom: none;
+        .result-box:last-child {
+            border-right: none;
+        }
+
+        .res-label {
+            font-size: 10px;
+            color: #8b949e;
+            margin-bottom: 4px;
+            font-weight: bold;
         }
 
         .damage-value {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: 800;
             color: #fff;
             font-family: monospace;
         }
 
-        .indicator {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 6px;
-        }
-
-        /* Colores */
-        .res-green .damage-value {
+        /* Colores Resultado */
+        .c-plant {
             color: var(--c-plant);
         }
 
-        .res-green .indicator {
-            background: var(--c-plant);
-            box-shadow: 0 0 8px var(--c-plant);
-        }
-
-        .res-blue .damage-value {
+        .c-aqua {
             color: var(--c-aqua);
         }
 
-        .res-blue .indicator {
-            background: var(--c-aqua);
-            box-shadow: 0 0 8px var(--c-aqua);
-        }
-
-        .res-yellow .damage-value {
+        .c-beast {
             color: var(--c-beast);
         }
 
-        .res-yellow .indicator {
-            background: var(--c-beast);
-            box-shadow: 0 0 8px var(--c-beast);
+
+        /* VIRTUAL KEYPAD */
+        .virtual-keypad {
+            margin-top: auto;
+            background: #161b22;
+            border-top: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 16px;
+            user-select: none;
+            /* No selecting text */
+        }
+
+        /* Class Shortcuts Row */
+        .kp-class-row {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+            scrollbar-width: none;
+        }
+
+        .kp-class-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .kp-class-btn {
+            flex: 0 0 auto;
+            height: 36px;
+            min-width: 36px;
+            border: 1px solid var(--border);
+            background: #0d1117;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .kp-class-btn:active {
+            transform: scale(0.95);
+            background: #21262d;
+        }
+
+
+        /* Main Grid */
+        .kp-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .kp-btn {
+            background: #21262d;
+            border: none;
+            border-radius: 8px;
+            height: 48px;
+            font-size: 20px;
+            font-family: monospace;
+            color: #e6eef8;
+            cursor: pointer;
+            transition: background 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .kp-btn:active {
+            background: #30363d;
+        }
+
+        .kp-btn.highlight {
+            color: var(--highlight);
+            background: rgba(0, 255, 255, 0.1);
+        }
+
+        .kp-btn.action {
+            color: #ff8bbd;
+        }
+
+        .kp-btn.del {
+            color: #ff5341;
+            font-size: 16px;
         }
 
 
         /* Responsivo */
         @media (max-width: 600px) {
             .main-wrapper {
-                padding: 16px;
+                padding: 12px;
                 height: 100vh;
                 max-height: 100vh;
                 border-radius: 0;
                 border: none;
+                justify-content: space-between;
             }
         }
     </style>
@@ -354,60 +415,86 @@
 <body>
 
     <div class="main-wrapper">
-        <div class="header">
-            <h1>SPG COMMAND</h1>
-            <div class="header-subtitle">Smart Input Calculator</div>
-        </div>
+        <!-- Top Area -->
+        <div style="flex-shrink:0;">
+            <div class="header">
+                <h1>SPG v2</h1>
+            </div>
 
-        <!-- 1. Estáticas: Tu Axie (Solo STAB) -->
-        <div>
-            <label class="section-label">Tu Axie (STAB / Default)</label>
-            <div class="attacker-selector" id="attackerSelector">
-                <div class="atk-btn active" data-value="aqua" style="color:var(--c-aqua)">AQ</div>
-                <div class="atk-btn" data-value="bird" style="color:var(--c-bird)">BI</div>
-                <div class="atk-btn" data-value="dawn" style="color:var(--c-dawn)">DA</div>
-                <div class="atk-btn" data-value="beast" style="color:var(--c-beast)">BE</div>
-                <div class="atk-btn" data-value="bug" style="color:var(--c-bug)">BU</div>
-                <div class="atk-btn" data-value="mech" style="color:var(--c-mech)">ME</div>
-                <div class="atk-btn" data-value="plant" style="color:var(--c-plant)">PL</div>
-                <div class="atk-btn" data-value="reptile" style="color:var(--c-reptile)">RE</div>
-                <div class="atk-btn" data-value="dusk" style="color:var(--c-dusk)">DU</div>
+            <!-- Attacker Class -->
+            <div style="margin-top:10px;">
+                <div class="attacker-selector" id="attackerSelector">
+                    <!-- Will be auto-rendered or static, keeping static for speed -->
+                    <div class="atk-btn active" data-value="aqua" style="color:var(--c-aqua)">AQ</div>
+                    <div class="atk-btn" data-value="bird" style="color:var(--c-bird)">BI</div>
+                    <div class="atk-btn" data-value="dawn" style="color:var(--c-dawn)">DA</div>
+                    <div class="atk-btn" data-value="beast" style="color:var(--c-beast)">BE</div>
+                    <div class="atk-btn" data-value="bug" style="color:var(--c-bug)">BU</div>
+                    <div class="atk-btn" data-value="mech" style="color:var(--c-mech)">ME</div>
+                    <div class="atk-btn" data-value="plant" style="color:var(--c-plant)">PL</div>
+                    <div class="atk-btn" data-value="reptile" style="color:var(--c-reptile)">RE</div>
+                    <div class="atk-btn" data-value="dusk" style="color:var(--c-dusk)">DU</div>
+                </div>
             </div>
         </div>
 
-        <!-- 2. Command Input -->
+        <!-- Middle: Input & Preview -->
         <div class="command-container">
-            <label class="section-label">Escribe tu combo</label>
-            <!-- Placeholder instructions -->
-            <input type="text" id="commandInput" placeholder="Ej: 120 + 200P-2 150*1" autocomplete="off" autofocus
-                spellcheck="false">
+            <input type="text" id="commandInput" placeholder="Tap pad to type..." autocomplete="off">
+            <div class="preview-tags" id="previewTags"></div>
+        </div>
 
-            <div class="input-hint">
-                <div class="hint-item"><span>+</span> Separa</div>
-                <div class="hint-item"><span>*</span> Buff</div>
-                <div class="hint-item"><span>-</span> Debuff</div>
-                <div class="hint-item"><span>N</span> Neutro</div>
+        <!-- Results (Middle-Bottom) -->
+        <div class="results-container">
+            <div class="result-box">
+                <div class="res-label c-plant">VS TANK</div>
+                <div class="damage-value c-plant" id="dmg-plant">0</div>
             </div>
-
-            <!-- Live parsed tags -->
-            <div class="preview-tags" id="previewTags">
-                <!-- Tags go here -->
+            <div class="result-box">
+                <div class="res-label c-aqua">VS SPEED</div>
+                <div class="damage-value c-aqua" id="dmg-aqua">0</div>
+            </div>
+            <div class="result-box">
+                <div class="res-label c-beast">VS CRIT</div>
+                <div class="damage-value c-beast" id="dmg-beast">0</div>
             </div>
         </div>
 
-        <!-- 3. Resultados (Total Combo) -->
-        <div class="results-container">
-            <div class="result-row res-green">
-                <div><span class="indicator"></span>VS PLANT</div>
-                <div class="damage-value" id="dmg-plant">0</div>
+        <!-- Bottom: Virtual Keypad -->
+        <div class="virtual-keypad">
+            <div class="kp-class-row">
+                <button class="kp-class-btn" style="color:var(--c-aqua)" onclick="vtType('A')">AQ</button>
+                <button class="kp-class-btn" style="color:var(--c-plant)" onclick="vtType('P')">PL</button>
+                <button class="kp-class-btn" style="color:var(--c-beast)" onclick="vtType('B')">BE</button>
+                <button class="kp-class-btn" style="color:var(--c-bird)" onclick="vtType('Bi')">BI</button>
+                <button class="kp-class-btn" style="color:var(--c-bug)" onclick="vtType('Bu')">BU</button>
+                <button class="kp-class-btn" style="color:var(--c-reptile)" onclick="vtType('R')">RE</button>
+                <button class="kp-class-btn" style="color:var(--c-mech)" onclick="vtType('M')">ME</button>
+                <button class="kp-class-btn" style="color:var(--c-dawn)" onclick="vtType('D')">DA</button>
+                <button class="kp-class-btn" style="color:var(--c-dusk)" onclick="vtType('Du')">DU</button>
+                <button class="kp-class-btn" style="color:var(--c-neutral)" onclick="vtType('N')">NE</button>
             </div>
-            <div class="result-row res-blue">
-                <div><span class="indicator"></span>VS AQUA</div>
-                <div class="damage-value" id="dmg-aqua">0</div>
-            </div>
-            <div class="result-row res-yellow">
-                <div><span class="indicator"></span>VS BEAST</div>
-                <div class="damage-value" id="dmg-beast">0</div>
+            <div class="kp-grid">
+                <button class="kp-btn" onclick="vtType('7')">7</button>
+                <button class="kp-btn" onclick="vtType('8')">8</button>
+                <button class="kp-btn" onclick="vtType('9')">9</button>
+                <button class="kp-btn highlight" onclick="vtType('*')">*</button>
+
+                <button class="kp-btn" onclick="vtType('4')">4</button>
+                <button class="kp-btn" onclick="vtType('5')">5</button>
+                <button class="kp-btn" onclick="vtType('6')">6</button>
+                <button class="kp-btn highlight" onclick="vtType('-')">-</button>
+
+                <button class="kp-btn" onclick="vtType('1')">1</button>
+                <button class="kp-btn" onclick="vtType('2')">2</button>
+                <button class="kp-btn" onclick="vtType('3')">3</button>
+                <button class="kp-btn action" onclick="vtType('+')">+</button>
+
+                <button class="kp-btn del" onclick="vtClear()">C</button>
+                <button class="kp-btn" onclick="vtType('0')">0</button>
+                <button class="kp-btn del" onclick="vtBackspace()">⌫</button>
+                <!-- Space button for layout -->
+                <button class="kp-btn" onclick="vtType(' ')">_</button>
             </div>
         </div>
     </div>
@@ -428,44 +515,52 @@
                     atkBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     state.attackerClass = btn.dataset.value;
-                    recalculate();
+                    // Re-run parse in case default class changed validation
+                    parseCommand(document.getElementById('commandInput').value);
                 });
             });
 
-            // Setup Input Listener
+            // Real Input Listener
             const input = document.getElementById('commandInput');
             input.addEventListener('input', (e) => {
                 parseCommand(e.target.value);
             });
         });
 
+        // VIRTUAL KEYPAD LOGIC
+        function vtType(char) {
+            const input = document.getElementById('commandInput');
+            input.value += char;
+            // Trigger event manually
+            parseCommand(input.value);
+            // Scroll to end (optional)
+            input.scrollLeft = input.scrollWidth;
+        }
+
+        function vtBackspace() {
+            const input = document.getElementById('commandInput');
+            input.value = input.value.slice(0, -1);
+            parseCommand(input.value);
+        }
+
+        function vtClear() {
+            const input = document.getElementById('commandInput');
+            input.value = '';
+            parseCommand('');
+        }
+
         // PARSER ENGINE
         function parseCommand(text) {
             state.parsedCards = [];
 
             // 1. Separate by '+' OR whitespace
-            // This supports "120+120" (fastest), "120 + 120" (clean code), "120 120" (lazy)
             let parts = text.split(/[\+\s]+/);
 
             parts.forEach(part => {
                 let clean = part.trim();
                 if (!clean) return;
 
-                // Regex for token structure:
-                // Start: Numbers (Damage)
-                // Middle: Letters (Class) - Optional
-                // End: Modifiers (* or - followed by optional number)
-
-                // Example: 120A*2
-                // Dmg: 120
-                // Class: A
-                // Mod: *2
-
-                // Complex Regex to capture everything
-                // ^(\d+)       -> Group 1: Damage (Digits at start)
-                // ([a-zA-Z]*)  -> Group 2: Class Code (Letters)
-                // (?:([\*\-])(\d*))? -> Group 3 (Sign) & 4 (Value) - Non capturing group for modifier part
-
+                // Regex: Dmg | Class | ModSign | ModVal
                 const regex = /^(\d+)([a-zA-Z]*)(?:([\*\-])(\d*))?$/;
                 const match = clean.match(regex);
 
@@ -475,10 +570,10 @@
                     const modSign = match[3];
                     let modValStr = match[4];
 
-                    // Resolve Class (If empty code, use ATTACKER CLASS)
+                    // Resolve Class
                     let cardClass = '';
                     if (code === '') {
-                        cardClass = state.attackerClass; // DEFAULT INHERITANCE
+                        cardClass = state.attackerClass; // DEFAULT
                     } else {
                         cardClass = resolveClass(code);
                     }
@@ -486,15 +581,11 @@
                     // Resolve Modifier
                     let buff = 0;
                     let debuff = 0;
-
                     if (modSign) {
                         let val = (modValStr === '' || modValStr === undefined) ? 1 : parseInt(modValStr);
-                        // Now * is Buff, - is Debuff
                         if (modSign === '*') buff = val;
                         if (modSign === '-') debuff = val;
                     }
-
-                    // Limit Loop
                     buff = Math.min(5, buff);
                     debuff = Math.min(5, debuff);
 
@@ -575,7 +666,6 @@
                 }
 
                 // 2. STAB
-                // Important: card.class might be inferred default.
                 let stab = (card.class === state.attackerClass) ? 1.10 : 1.0;
                 let dmgStep2 = Math.floor(dmgStep1 * stab);
 
