@@ -614,19 +614,22 @@
                 </div>
 
                 <div class="help-section">
-                    <h3>Buffs y Debuffs</h3>
-                    <div class="help-item">Usa <span class="help-code">*</span> para Buffs de Ataque. Ej: <span
-                            class="help-code">120*2</span> (2 Buffs).</div>
-                    <div class="help-item">Usa <span class="help-code">-</span> para Debuffs de Ataque. Ej: <span
-                            class="help-code">120-1</span> (1 Debuff).</div>
+                    <h3>Atajos Rápidos (Speed Typing)</h3>
+                    <div class="help-item"><strong>Bestia:</strong> <span class="help-code">B</span></div>
+                    <div class="help-item"><strong>Pájaro:</strong> <span class="help-code">V</span> (Volador) o <span
+                            class="help-code">J</span></div>
+                    <div class="help-item"><strong>Bicho:</strong> <span class="help-code">U</span> (bUg) o <span
+                            class="help-code">G</span></div>
+                    <div class="help-item"><strong>Normales:</strong> <span class="help-code">A</span> Aqua, <span
+                            class="help-code">P</span> Planta, <span class="help-code">R</span> Reptil</div>
                 </div>
 
                 <div class="help-section">
-                    <h3>Códigos de Clase</h3>
-                    <div class="help-item"><span class="help-code">A</span> Aqua, <span class="help-code">P</span>
-                        Planta, <span class="help-code">B</span> Bestia</div>
-                    <div class="help-item"><span class="help-code">BI</span> Pájaro, <span class="help-code">BU</span>
-                        Bicho, <span class="help-code">R</span> Reptil</div>
+                    <h3>Buffs y Debuffs</h3>
+                    <div class="help-item">Usa <span class="help-code">*</span> para Buffs. Ej: <span
+                            class="help-code">120*2</span>.</div>
+                    <div class="help-item">Usa <span class="help-code">-</span> para Debuffs. Ej: <span
+                            class="help-code">120-1</span>.</div>
                 </div>
 
                 <button class="kp-btn action" onclick="toggleHelp()"
@@ -766,9 +769,12 @@
             if (code.startsWith('s')) return 'dusk';
 
             // Fallback aliases
-            if (code === 'j') return 'bird';
-            if (code === 'v') return 'bird';
-            if (code === 'e') return 'beast';
+            if (code === 'j') return 'bird'; // Pajaro
+            if (code === 'v') return 'bird'; // Volador / Ave
+            if (code === 'u') return 'bug';  // bUg
+            if (code === 'g') return 'bug';  // buG
+            if (code === 'i') return 'bug';  // Insecto
+            if (code === 'e') return 'beast'; // bEast
 
             return 'neutral';
         }
