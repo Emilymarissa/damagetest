@@ -4,113 +4,140 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Calculator — Manual Mode</title>
+    <title>SPG Calculator — Pure Code</title>
     <style>
         /* ESTILOS BASE */
+        :root {
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --border: #30363d;
+            --highlight: #0ff;
+            --text: #e6eef8;
+
+            /* Colores de Clase */
+            --c-aqua: #00b8ff;
+            --c-bird: #ff8bbd;
+            --c-dawn: #beceff;
+            --c-beast: #ffb812;
+            --c-bug: #ff5341;
+            --c-mech: #778899;
+            --c-plant: #6cc000;
+            --c-reptile: #dc9bff;
+            --c-dusk: #1290ff;
+        }
+
         body {
             font-family: 'Inter', system-ui, sans-serif;
-            background: #0d1117;
-            color: #e6eef8;
+            background: radial-gradient(circle at 50% 10%, #1c2333 0%, #0d1117 100%);
+            color: var(--text);
             margin: 0;
             padding: 20px;
             min-height: 100vh;
-            background-image: url('img/fondo_axie.jpg');
-            background-size: cover;
-            background-attachment: fixed;
-            position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(13, 17, 23, 0.92);
-            backdrop-filter: blur(8px);
-            z-index: -1;
         }
 
         /* Contenedor Principal */
         .main-wrapper {
             width: 100%;
             max-width: 600px;
-            background: #161b22;
-            border: 2px solid #0ff;
-            border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.15);
+            background: rgba(22, 27, 34, 0.7);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decoración de fondo abstracta */
+        .main-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
         }
 
         /* Header */
         .header {
             text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
+            margin-bottom: 10px;
         }
 
         .header h1 {
-            font-size: 24px;
+            font-size: 28px;
             margin: 0;
-            background: linear-gradient(90deg, #fff, #0ff);
+            background: linear-gradient(135deg, #fff, #0ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
         }
 
-        .header-logo {
-            width: 40px;
-            height: 40px;
-            object-fit: contain;
+        .header-subtitle {
+            font-size: 12px;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 5px;
         }
 
         /* Secciones de Input */
         .input-section {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .section-label {
-            font-size: 14px;
+            font-size: 13px;
             color: #8b949e;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
 
         /* Input Grande de Daño */
-        .damage-input-wrapper {
+        .damage-input-container {
             position: relative;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #1c2128, #161b22);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .damage-input-container:focus-within {
+            border-color: var(--highlight);
+            box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.15);
         }
 
         #baseDamage {
             width: 100%;
-            background: #0d1117;
-            border: 2px solid #30363d;
-            border-radius: 12px;
-            padding: 16px;
-            font-size: 42px;
+            background: transparent;
+            border: none;
+            padding: 20px;
+            font-size: 48px;
             text-align: center;
-            color: #0ff;
-            font-weight: bold;
+            color: #fff;
+            font-weight: 800;
             outline: none;
-            transition: all 0.2s;
-            box-sizing: border-box;
             font-family: monospace;
-        }
-
-        #baseDamage:focus {
-            border-color: #0ff;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
         }
 
         /* Botones de Selección (Clases) */
@@ -121,52 +148,90 @@
         }
 
         .class-btn {
-            background: #0d1117;
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            padding: 10px;
+            background: #161b22;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
             cursor: pointer;
-            color: #c9d1d9;
-            font-weight: 500;
-            transition: all 0.2s;
+            color: #8b949e;
+            font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+            font-size: 13px;
         }
 
-        .class-btn img {
-            width: 20px;
-            height: 20px;
+        .class-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 5px currentColor;
         }
 
         .class-btn:hover {
             background: #21262d;
+            color: #c9d1d9;
+            transform: translateY(-1px);
         }
 
-        /* Colores Activos por Clase */
-        .class-btn[data-value="beast"].active,
-        .class-btn[data-value="mech"].active,
-        .class-btn[data-value="bug"].active {
-            background: rgba(255, 184, 18, 0.2);
-            border-color: #ffb812;
-            color: #ffb812;
+        /* Estilos Activos */
+        .class-btn.active {
+            background: #1c2128;
+            border-color: currentColor;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
-        .class-btn[data-value="aqua"].active,
-        .class-btn[data-value="bird"].active,
-        .class-btn[data-value="dawn"].active {
-            background: rgba(0, 184, 255, 0.2);
-            border-color: #00b8ff;
-            color: #00b8ff;
+        /* Colores específicos de clase */
+        .cb-aqua {
+            color: var(--c-aqua);
         }
 
-        .class-btn[data-value="plant"].active,
-        .class-btn[data-value="reptile"].active,
-        .class-btn[data-value="dusk"].active {
-            background: rgba(108, 192, 0, 0.2);
-            border-color: #6cc000;
-            color: #6cc000;
+        .cb-bird {
+            color: var(--c-bird);
+        }
+
+        .cb-dawn {
+            color: var(--c-dawn);
+        }
+
+        .cb-beast {
+            color: var(--c-beast);
+        }
+
+        .cb-bug {
+            color: var(--c-bug);
+        }
+
+        .cb-mech {
+            color: var(--c-mech);
+        }
+
+        .cb-plant {
+            color: var(--c-plant);
+        }
+
+        .cb-reptile {
+            color: var(--c-reptile);
+        }
+
+        .cb-dusk {
+            color: var(--c-dusk);
+        }
+
+        .class-btn.active::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: currentColor;
+            opacity: 0.1;
         }
 
         /* Modificadores (Buffs/Debuffs) */
@@ -177,68 +242,88 @@
         }
 
         .modifier-control {
-            background: #0d1117;
-            border-radius: 12px;
-            padding: 10px;
+            background: #161b22;
+            border-radius: 16px;
+            padding: 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border: 1px solid #30363d;
+            border: 1px solid var(--border);
+            position: relative;
         }
 
-        .mod-icon {
-            width: 32px;
-            height: 32px;
+        .mod-icon-svg {
+            width: 24px;
+            height: 24px;
         }
 
         .mod-value {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: bold;
             width: 30px;
             text-align: center;
+            font-family: monospace;
         }
 
         .mod-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             border: none;
             cursor: pointer;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: 0.1s;
         }
 
         .btn-minus {
             background: #21262d;
+            color: #8b949e;
+        }
+
+        .btn-minus:hover {
+            background: #30363d;
             color: #fff;
         }
 
         .btn-plus {
-            background: #0ff;
-            color: #000;
+            background: #21262d;
+            color: var(--highlight);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .btn-plus:hover {
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
         }
 
         /* Grid de Resultados */
         .results-container {
             background: #0d1117;
-            border-radius: 12px;
-            border: 1px solid #30363d;
-            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 0;
+            overflow: hidden;
         }
 
         .result-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 0;
+            padding: 16px 20px;
             border-bottom: 1px solid #21262d;
+            transition: background 0.2s;
         }
 
         .result-row:last-child {
             border-bottom: none;
+        }
+
+        .result-row:hover {
+            background: #13171f;
         }
 
         .target-group {
@@ -248,66 +333,121 @@
         }
 
         .target-names {
-            font-size: 12px;
+            font-size: 11px;
             color: #8b949e;
+            font-weight: 500;
         }
 
         .group-title {
-            font-weight: bold;
-            font-size: 16px;
+            font-weight: 800;
+            font-size: 15px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
         }
 
         .damage-value {
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 28px;
+            font-weight: 800;
             color: #fff;
             font-family: monospace;
         }
 
         /* Colores de resultados */
         .res-green .damage-value {
-            color: #6cc000;
-            text-shadow: 0 0 10px rgba(108, 192, 0, 0.4);
+            color: var(--c-plant);
+        }
+
+        .res-green .indicator {
+            background: var(--c-plant);
+            box-shadow: 0 0 8px var(--c-plant);
         }
 
         .res-blue .damage-value {
-            color: #00b8ff;
-            text-shadow: 0 0 10px rgba(0, 184, 255, 0.4);
+            color: var(--c-aqua);
+        }
+
+        .res-blue .indicator {
+            background: var(--c-aqua);
+            box-shadow: 0 0 8px var(--c-aqua);
         }
 
         .res-yellow .damage-value {
-            color: #ffb812;
-            text-shadow: 0 0 10px rgba(255, 184, 18, 0.4);
+            color: var(--c-beast);
         }
 
-        .formula-check {
+        .res-yellow .indicator {
+            background: var(--c-beast);
+            box-shadow: 0 0 8px var(--c-beast);
+        }
+
+        /* Checkbox bonito */
+        .checkbox-wrapper {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-top: 5px;
-            color: #8b949e;
-            font-size: 14px;
             cursor: pointer;
-            justify-content: center;
+            font-size: 13px;
+            color: #8b949e;
+            user-select: none;
         }
 
-        /* Focus para el teclado en movil */
+        .custom-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #30363d;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        input[type="checkbox"] {
+            display: none;
+        }
+
+        input:checked+.custom-checkbox {
+            background: var(--highlight);
+            border-color: var(--highlight);
+        }
+
+        input:checked+.custom-checkbox::after {
+            content: '✔';
+            font-size: 12px;
+            color: #000;
+        }
+
+        /* Responsivo */
         @media (max-width: 600px) {
             .main-wrapper {
-                padding: 16px;
-                max-width: 95%;
+                padding: 20px;
+                border-radius: 0;
+                height: 100vh;
+                max-width: 100%;
+                border: none;
+                justify-content: center;
             }
 
-            .class-selector {
-                gap: 4px;
+            body {
+                padding: 0;
+                align-items: flex-start;
             }
 
             .class-btn {
-                padding: 8px;
-                font-size: 12px;
+                padding: 10px 4px;
+                font-size: 11px;
+            }
+
+            .class-dot {
+                display: none;
             }
         }
     </style>
@@ -316,67 +456,84 @@
 <body>
 
     <div class="main-wrapper">
-        <!-- Header -->
         <div class="header">
-            <h1>NKL FAST</h1>
-            <img src="img/logo.png" alt="Logo" class="header-logo">
+            <h1>SPG FAST</h1>
+            <div class="header-subtitle">Pure Code Calculator</div>
         </div>
 
         <!-- 1. Daño Base -->
         <div class="input-section">
-            <label class="section-label">Daño de la Carta</label>
-            <div class="damage-input-wrapper">
+            <label class="section-label">Daño de Carta</label>
+            <div class="damage-input-container">
                 <input type="number" id="baseDamage" placeholder="0" pattern="[0-9]*" inputmode="numeric" autofocus>
             </div>
-            <label class="formula-check">
-                <input type="checkbox" id="comboCheck"> Combo? (Necesario para algunos bonus)
+            <label class="checkbox-wrapper">
+                <input type="checkbox" id="comboCheck">
+                <div class="custom-checkbox"></div>
+                Combo? (Bonus de Skill)
             </label>
         </div>
 
         <!-- 2. Clase de la Carta -->
         <div class="input-section">
-            <label class="section-label">Clase de la Carta</label>
+            <div class="section-header">
+                <label class="section-label">Clase Carta</label>
+            </div>
             <div class="class-selector" id="cardClassParams">
-                <button class="class-btn" data-value="aqua">Aqua</button>
-                <button class="class-btn" data-value="bird">Bird</button>
-                <button class="class-btn" data-value="dawn">Dawn</button>
-                <button class="class-btn" data-value="beast">Beast</button>
-                <button class="class-btn" data-value="bug">Bug</button>
-                <button class="class-btn" data-value="mech">Mech</button>
-                <button class="class-btn" data-value="plant">Plant</button>
-                <button class="class-btn" data-value="reptile">Reptile</button>
-                <button class="class-btn" data-value="dusk">Dusk</button>
+                <button class="class-btn cb-aqua" data-value="aqua"><span class="class-dot"></span>Aqua</button>
+                <button class="class-btn cb-bird" data-value="bird"><span class="class-dot"></span>Bird</button>
+                <button class="class-btn cb-dawn" data-value="dawn"><span class="class-dot"></span>Dawn</button>
+                <button class="class-btn cb-beast" data-value="beast"><span class="class-dot"></span>Beast</button>
+                <button class="class-btn cb-bug" data-value="bug"><span class="class-dot"></span>Bug</button>
+                <button class="class-btn cb-mech" data-value="mech"><span class="class-dot"></span>Mech</button>
+                <button class="class-btn cb-plant" data-value="plant"><span class="class-dot"></span>Plant</button>
+                <button class="class-btn cb-reptile" data-value="reptile"><span
+                        class="class-dot"></span>Reptile</button>
+                <button class="class-btn cb-dusk" data-value="dusk"><span class="class-dot"></span>Dusk</button>
             </div>
         </div>
 
         <!-- 3. Clase de tu Axie (STAB) -->
         <div class="input-section">
-            <label class="section-label">Clase de tu Axie (Bonus STAB)</label>
+            <label class="section-label">Tu Axie (STAB)</label>
             <div class="class-selector" id="attackerClassParams">
-                <button class="class-btn active" data-value="aqua">Aqua</button> <!-- Default Aqua -->
-                <button class="class-btn" data-value="bird">Bird</button>
-                <button class="class-btn" data-value="dawn">Dawn</button>
-                <button class="class-btn" data-value="beast">Beast</button>
-                <button class="class-btn" data-value="bug">Bug</button>
-                <button class="class-btn" data-value="mech">Mech</button>
-                <button class="class-btn" data-value="plant">Plant</button>
-                <button class="class-btn" data-value="reptile">Reptile</button>
-                <button class="class-btn" data-value="dusk">Dusk</button>
+                <button class="class-btn cb-aqua active" data-value="aqua"><span class="class-dot"></span>Aqua</button>
+                <button class="class-btn cb-bird" data-value="bird"><span class="class-dot"></span>Bird</button>
+                <button class="class-btn cb-dawn" data-value="dawn"><span class="class-dot"></span>Dawn</button>
+                <button class="class-btn cb-beast" data-value="beast"><span class="class-dot"></span>Beast</button>
+                <button class="class-btn cb-bug" data-value="bug"><span class="class-dot"></span>Bug</button>
+                <button class="class-btn cb-mech" data-value="mech"><span class="class-dot"></span>Mech</button>
+                <button class="class-btn cb-plant" data-value="plant"><span class="class-dot"></span>Plant</button>
+                <button class="class-btn cb-reptile" data-value="reptile"><span
+                        class="class-dot"></span>Reptile</button>
+                <button class="class-btn cb-dusk" data-value="dusk"><span class="class-dot"></span>Dusk</button>
             </div>
         </div>
 
         <!-- 4. Modificadores -->
         <div class="modifiers-grid">
             <div class="modifier-control">
-                <img src="img/attack-up.png" class="mod-icon" alt="Buff">
+                <!-- SVG Sword Icon -->
+                <svg class="mod-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#00b8ff" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.5 17.5L3 6V3h3l11.5 11.5"></path>
+                    <path d="M13 19l6-6"></path>
+                    <path d="M16 16l4 4"></path>
+                    <path d="M19 21l2-2"></path>
+                </svg>
                 <button class="mod-btn btn-minus" onclick="updateBuff(-1)">-</button>
-                <span class="mod-value" id="buffVal">0</span>
+                <span class="mod-value" id="buffVal" style="color: #00b8ff;">0</span>
                 <button class="mod-btn btn-plus" onclick="updateBuff(1)">+</button>
             </div>
             <div class="modifier-control">
-                <img src="img/low.png" class="mod-icon" alt="Debuff">
+                <!-- SVG Down Arrow Icon -->
+                <svg class="mod-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#ff5341" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14"></path>
+                    <path d="M19 12l-7 7-7-7"></path>
+                </svg>
                 <button class="mod-btn btn-minus" onclick="updateDebuff(-1)">-</button>
-                <span class="mod-value" id="debuffVal">0</span>
+                <span class="mod-value" id="debuffVal" style="color: #ff5341;">0</span>
                 <button class="mod-btn btn-plus" onclick="updateDebuff(1)">+</button>
             </div>
         </div>
@@ -386,7 +543,9 @@
             <!-- Vs Plant/Reptile/Dusk -->
             <div class="result-row res-green">
                 <div class="target-group">
-                    <div class="group-title">VS TANK</div>
+                    <div class="group-title">
+                        <div class="indicator"></div> TANK
+                    </div>
                     <div class="target-names">Planta / Reptil / Dusk</div>
                 </div>
                 <div class="damage-value" id="dmg-plant">0</div>
@@ -395,7 +554,9 @@
             <!-- Vs Aqua/Bird/Dawn -->
             <div class="result-row res-blue">
                 <div class="target-group">
-                    <div class="group-title">VS SPEED</div>
+                    <div class="group-title">
+                        <div class="indicator"></div> SPEED
+                    </div>
                     <div class="target-names">Aqua / Pajaro / Dawn</div>
                 </div>
                 <div class="damage-value" id="dmg-aqua">0</div>
@@ -404,7 +565,9 @@
             <!-- Vs Beast/Bug/Mech -->
             <div class="result-row res-yellow">
                 <div class="target-group">
-                    <div class="group-title">VS CRIT</div>
+                    <div class="group-title">
+                        <div class="indicator"></div> CRIT
+                    </div>
                     <div class="target-names">Bestia / Bicho / Mech</div>
                 </div>
                 <div class="damage-value" id="dmg-beast">0</div>
@@ -542,6 +705,7 @@
             if (dmgStep1 < 0) dmgStep1 = 0;
 
             // 2. STAB (Same Type Attack Bonus)
+            // STAB básico: +10%
             let stab = (state.cardClass === state.attackerClass) ? 1.10 : 1.0;
 
             let dmgStep2 = Math.floor(dmgStep1 * stab);
