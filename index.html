@@ -37,7 +37,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            /* Prevent pull-to-refresh on mobile if possible */
             overscroll-behavior-y: none;
         }
 
@@ -61,10 +60,12 @@
         }
 
         /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 0;
-            flex-shrink: 0;
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 5px;
         }
 
         .header h1 {
@@ -77,11 +78,31 @@
         }
 
         .header-subtitle {
+            text-align: center;
             font-size: 10px;
             color: #8b949e;
             text-transform: uppercase;
             letter-spacing: 2px;
             margin-top: 2px;
+        }
+
+        /* Help Button */
+        .help-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            color: var(--highlight);
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
         }
 
         .section-label {
@@ -94,16 +115,14 @@
             display: block;
         }
 
-        /* ATTACKER CLASS SELECTOR (Compacto) */
+        /* ATTACKER CLASS SELECTOR */
         .attacker-selector {
             display: flex;
             gap: 8px;
-            /* Bigger touch targets */
             overflow-x: auto;
             padding-bottom: 5px;
             scrollbar-width: none;
             justify-content: start;
-            /* Align start for scrolling */
         }
 
         .attacker-selector::-webkit-scrollbar {
@@ -155,8 +174,6 @@
             outline: none;
             box-sizing: border-box;
             transition: border-color 0.2s;
-            /* Prevent native keyboard on readOnly or handled via JS? 
-       Actually user might want to type manually too. */
         }
 
         #commandInput:focus {
@@ -318,10 +335,9 @@
             padding: 10px;
             border-radius: 16px;
             user-select: none;
-            /* No selecting text */
         }
 
-        /* Class Shortcuts Row */
+        /* Class Shortcuts */
         .kp-class-row {
             display: flex;
             gap: 8px;
@@ -355,7 +371,6 @@
             transform: scale(0.95);
             background: #21262d;
         }
-
 
         /* Main Grid */
         .kp-grid {
@@ -397,6 +412,83 @@
             font-size: 16px;
         }
 
+        /* MODAL AYUDA */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(13, 17, 23, 0.95);
+            z-index: 100;
+            display: none;
+            /* Hidden by default */
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #161b22;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            color: #e6eef8;
+            max-width: 500px;
+            margin: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--highlight);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #ff5341;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .help-section {
+            margin-bottom: 20px;
+        }
+
+        .help-section h3 {
+            font-size: 14px;
+            color: #8b949e;
+            text-transform: uppercase;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+
+        .help-item {
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .help-code {
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 4px;
+            border-radius: 4px;
+            color: #fff;
+        }
 
         /* Responsivo */
         @media (max-width: 600px) {
@@ -417,14 +509,15 @@
     <div class="main-wrapper">
         <!-- Top Area -->
         <div style="flex-shrink:0;">
-            <div class="header">
+            <div class="header-row">
                 <h1>SPG v2</h1>
+                <button class="help-btn" onclick="toggleHelp()">?</button>
             </div>
+            <div class="header-subtitle">Smart Manual Calculator</div>
 
             <!-- Attacker Class -->
             <div style="margin-top:10px;">
                 <div class="attacker-selector" id="attackerSelector">
-                    <!-- Will be auto-rendered or static, keeping static for speed -->
                     <div class="atk-btn active" data-value="aqua" style="color:var(--c-aqua)">AQ</div>
                     <div class="atk-btn" data-value="bird" style="color:var(--c-bird)">BI</div>
                     <div class="atk-btn" data-value="dawn" style="color:var(--c-dawn)">DA</div>
@@ -497,6 +590,49 @@
                 <button class="kp-btn" onclick="vtType(' ')">_</button>
             </div>
         </div>
+
+        <!-- HELP MODAL -->
+        <div class="modal-overlay" id="helpModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="modal-title">Guía de Uso</span>
+                    <button class="close-btn" onclick="toggleHelp()">×</button>
+                </div>
+
+                <div class="help-section">
+                    <h3>Sintaxis Básica</h3>
+                    <div class="help-item">Escribe daño seguido de la clase y separalos con <span
+                            class="help-code">+</span> o espacio.</div>
+                    <div class="help-item">Ejemplo: <span class="help-code">120A + 110P</span> es 120 Aqua y 110 Planta.
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>Clase Automática</h3>
+                    <div class="help-item">Si solo escribes el número (ej: <span class="help-code">120</span>), se usará
+                        la clase de <strong>Tu Axie</strong> (seleccionada arriba).</div>
+                </div>
+
+                <div class="help-section">
+                    <h3>Buffs y Debuffs</h3>
+                    <div class="help-item">Usa <span class="help-code">*</span> para Buffs de Ataque. Ej: <span
+                            class="help-code">120*2</span> (2 Buffs).</div>
+                    <div class="help-item">Usa <span class="help-code">-</span> para Debuffs de Ataque. Ej: <span
+                            class="help-code">120-1</span> (1 Debuff).</div>
+                </div>
+
+                <div class="help-section">
+                    <h3>Códigos de Clase</h3>
+                    <div class="help-item"><span class="help-code">A</span> Aqua, <span class="help-code">P</span>
+                        Planta, <span class="help-code">B</span> Bestia</div>
+                    <div class="help-item"><span class="help-code">BI</span> Pájaro, <span class="help-code">BU</span>
+                        Bicho, <span class="help-code">R</span> Reptil</div>
+                </div>
+
+                <button class="kp-btn action" onclick="toggleHelp()"
+                    style="width:100%; font-size:16px;">Entendido</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -527,13 +663,24 @@
             });
         });
 
+        // MODAL LOGIC
+        function toggleHelp() {
+            const modal = document.getElementById('helpModal');
+            if (modal.style.display === 'flex') {
+                modal.style.display = 'none';
+                modal.classList.remove('open');
+            } else {
+                modal.style.display = 'flex';
+                modal.classList.add('open');
+            }
+        }
+
         // VIRTUAL KEYPAD LOGIC
         function vtType(char) {
             const input = document.getElementById('commandInput');
             input.value += char;
             // Trigger event manually
             parseCommand(input.value);
-            // Scroll to end (optional)
             input.scrollLeft = input.scrollWidth;
         }
 
