@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Calculator — Manual Mode</title>
+    <style>
+        /* ESTILOS BASE */
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #0d1117;
+            color: #e6eef8;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            background-image: url('img/fondo_axie.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.92);
+            backdrop-filter: blur(8px);
+            z-index: -1;
+        }
+
+        /* Contenedor Principal */
+        .main-wrapper {
+            width: 100%;
+            max-width: 600px;
+            background: #161b22;
+            border: 2px solid #0ff;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+            background: linear-gradient(90deg, #fff, #0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-logo {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        /* Secciones de Input */
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .section-label {
+            font-size: 14px;
+            color: #8b949e;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Input Grande de Daño */
+        .damage-input-wrapper {
+            position: relative;
+        }
+
+        #baseDamage {
+            width: 100%;
+            background: #0d1117;
+            border: 2px solid #30363d;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 42px;
+            text-align: center;
+            color: #0ff;
+            font-weight: bold;
+            outline: none;
+            transition: all 0.2s;
+            box-sizing: border-box;
+            font-family: monospace;
+        }
+
+        #baseDamage:focus {
+            border-color: #0ff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+        }
+
+        /* Botones de Selección (Clases) */
+        .class-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .class-btn {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            color: #c9d1d9;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .class-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .class-btn:hover {
+            background: #21262d;
+        }
+
+        /* Colores Activos por Clase */
+        .class-btn[data-value="beast"].active,
+        .class-btn[data-value="mech"].active,
+        .class-btn[data-value="bug"].active {
+            background: rgba(255, 184, 18, 0.2);
+            border-color: #ffb812;
+            color: #ffb812;
+        }
+
+        .class-btn[data-value="aqua"].active,
+        .class-btn[data-value="bird"].active,
+        .class-btn[data-value="dawn"].active {
+            background: rgba(0, 184, 255, 0.2);
+            border-color: #00b8ff;
+            color: #00b8ff;
+        }
+
+        .class-btn[data-value="plant"].active,
+        .class-btn[data-value="reptile"].active,
+        .class-btn[data-value="dusk"].active {
+            background: rgba(108, 192, 0, 0.2);
+            border-color: #6cc000;
+            color: #6cc000;
+        }
+
+        /* Modificadores (Buffs/Debuffs) */
+        .modifiers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .modifier-control {
+            background: #0d1117;
+            border-radius: 12px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #30363d;
+        }
+
+        .mod-icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        .mod-value {
+            font-size: 20px;
+            font-weight: bold;
+            width: 30px;
+            text-align: center;
+        }
+
+        .mod-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-minus {
+            background: #21262d;
+            color: #fff;
+        }
+
+        .btn-plus {
+            background: #0ff;
+            color: #000;
+        }
+
+        /* Grid de Resultados */
+        .results-container {
+            background: #0d1117;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            padding: 16px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #21262d;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .target-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .target-names {
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .group-title {
+            font-weight: bold;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .damage-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            font-family: monospace;
+        }
+
+        /* Colores de resultados */
+        .res-green .damage-value {
+            color: #6cc000;
+            text-shadow: 0 0 10px rgba(108, 192, 0, 0.4);
+        }
+
+        .res-blue .damage-value {
+            color: #00b8ff;
+            text-shadow: 0 0 10px rgba(0, 184, 255, 0.4);
+        }
+
+        .res-yellow .damage-value {
+            color: #ffb812;
+            text-shadow: 0 0 10px rgba(255, 184, 18, 0.4);
+        }
+
+        .formula-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 5px;
+            color: #8b949e;
+            font-size: 14px;
+            cursor: pointer;
+            justify-content: center;
+        }
+
+        /* Focus para el teclado en movil */
+        @media (max-width: 600px) {
+            .main-wrapper {
+                padding: 16px;
+                max-width: 95%;
+            }
+
+            .class-selector {
+                gap: 4px;
+            }
+
+            .class-btn {
+                padding: 8px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-wrapper">
+        <!-- Header -->
+        <div class="header">
+            <h1>NKL FAST</h1>
+            <img src="img/logo.png" alt="Logo" class="header-logo">
+        </div>
+
+        <!-- 1. Daño Base -->
+        <div class="input-section">
+            <label class="section-label">Daño de la Carta</label>
+            <div class="damage-input-wrapper">
+                <input type="number" id="baseDamage" placeholder="0" pattern="[0-9]*" inputmode="numeric" autofocus>
+            </div>
+            <label class="formula-check">
+                <input type="checkbox" id="comboCheck"> Combo? (Necesario para algunos bonus)
+            </label>
+        </div>
+
+        <!-- 2. Clase de la Carta -->
+        <div class="input-section">
+            <label class="section-label">Clase de la Carta</label>
+            <div class="class-selector" id="cardClassParams">
+                <button class="class-btn" data-value="aqua">Aqua</button>
+                <button class="class-btn" data-value="bird">Bird</button>
+                <button class="class-btn" data-value="dawn">Dawn</button>
+                <button class="class-btn" data-value="beast">Beast</button>
+                <button class="class-btn" data-value="bug">Bug</button>
+                <button class="class-btn" data-value="mech">Mech</button>
+                <button class="class-btn" data-value="plant">Plant</button>
+                <button class="class-btn" data-value="reptile">Reptile</button>
+                <button class="class-btn" data-value="dusk">Dusk</button>
+            </div>
+        </div>
+
+        <!-- 3. Clase de tu Axie (STAB) -->
+        <div class="input-section">
+            <label class="section-label">Clase de tu Axie (Bonus STAB)</label>
+            <div class="class-selector" id="attackerClassParams">
+                <button class="class-btn active" data-value="aqua">Aqua</button> <!-- Default Aqua -->
+                <button class="class-btn" data-value="bird">Bird</button>
+                <button class="class-btn" data-value="dawn">Dawn</button>
+                <button class="class-btn" data-value="beast">Beast</button>
+                <button class="class-btn" data-value="bug">Bug</button>
+                <button class="class-btn" data-value="mech">Mech</button>
+                <button class="class-btn" data-value="plant">Plant</button>
+                <button class="class-btn" data-value="reptile">Reptile</button>
+                <button class="class-btn" data-value="dusk">Dusk</button>
+            </div>
+        </div>
+
+        <!-- 4. Modificadores -->
+        <div class="modifiers-grid">
+            <div class="modifier-control">
+                <img src="img/attack-up.png" class="mod-icon" alt="Buff">
+                <button class="mod-btn btn-minus" onclick="updateBuff(-1)">-</button>
+                <span class="mod-value" id="buffVal">0</span>
+                <button class="mod-btn btn-plus" onclick="updateBuff(1)">+</button>
+            </div>
+            <div class="modifier-control">
+                <img src="img/low.png" class="mod-icon" alt="Debuff">
+                <button class="mod-btn btn-minus" onclick="updateDebuff(-1)">-</button>
+                <span class="mod-value" id="debuffVal">0</span>
+                <button class="mod-btn btn-plus" onclick="updateDebuff(1)">+</button>
+            </div>
+        </div>
+
+        <!-- 5. Resultados -->
+        <div class="results-container">
+            <!-- Vs Plant/Reptile/Dusk -->
+            <div class="result-row res-green">
+                <div class="target-group">
+                    <div class="group-title">VS TANK</div>
+                    <div class="target-names">Planta / Reptil / Dusk</div>
+                </div>
+                <div class="damage-value" id="dmg-plant">0</div>
+            </div>
+
+            <!-- Vs Aqua/Bird/Dawn -->
+            <div class="result-row res-blue">
+                <div class="target-group">
+                    <div class="group-title">VS SPEED</div>
+                    <div class="target-names">Aqua / Pajaro / Dawn</div>
+                </div>
+                <div class="damage-value" id="dmg-aqua">0</div>
+            </div>
+
+            <!-- Vs Beast/Bug/Mech -->
+            <div class="result-row res-yellow">
+                <div class="target-group">
+                    <div class="group-title">VS CRIT</div>
+                    <div class="target-names">Bestia / Bicho / Mech</div>
+                </div>
+                <div class="damage-value" id="dmg-beast">0</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ESTADO
+        let state = {
+            damage: 0,
+            cardClass: 'aqua', // Default inicial
+            attackerClass: 'aqua', // Default
+            buffs: 0,
+            debuffs: 0,
+            combo: false
+        };
+
+        // CONSTANTES
+        // Grupo 1: Plant, Reptile, Dusk
+        // Grupo 2: Aqua, Bird, Dawn
+        // Grupo 3: Beast, Bug, Mech
+
+        function getBonus(cardClass, targetGroup) {
+            if (!cardClass) return 1;
+
+            // Normalizar clases a grupos básicos
+            const groupMap = {
+                plant: 'plant', reptile: 'plant', dusk: 'plant',
+                aqua: 'aqua', bird: 'aqua', dawn: 'aqua',
+                beast: 'beast', bug: 'beast', mech: 'beast'
+            };
+
+            const cGroup = groupMap[cardClass];
+            // targetGroup es 'plant', 'aqua', o 'beast'
+
+            if (cGroup === 'plant') {
+                if (targetGroup === 'aqua') return 1.15; // Ventaja
+                if (targetGroup === 'beast') return 0.85; // Desventaja
+            }
+            if (cGroup === 'aqua') {
+                if (targetGroup === 'beast') return 1.15;
+                if (targetGroup === 'plant') return 0.85;
+            }
+            if (cGroup === 'beast') {
+                if (targetGroup === 'plant') return 1.15;
+                if (targetGroup === 'aqua') return 0.85;
+            }
+
+            return 1; // Neutral
+        }
+
+        // INICIALIZACION
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inputs
+            document.getElementById('baseDamage').addEventListener('input', (e) => {
+                let val = e.target.value;
+                if (val === '') {
+                    state.damage = 0;
+                } else {
+                    state.damage = parseInt(val) || 0;
+                }
+                calculate();
+            });
+
+            document.getElementById('comboCheck').addEventListener('change', (e) => {
+                state.combo = e.target.checked;
+                calculate();
+            });
+
+            // Class Selectors
+            setupSelectors('cardClassParams', 'cardClass');
+            setupSelectors('attackerClassParams', 'attackerClass');
+
+            // Auto-select defaults
+            selectButton('cardClassParams', 'aqua');
+            // attackerClass ya es aqua por default en HTML
+
+            calculate();
+        });
+
+        function setupSelectors(parentId, stateKey) {
+            const parent = document.getElementById(parentId);
+            parent.querySelectorAll('.class-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active from siblings
+                    parent.querySelectorAll('.class-btn').forEach(b => b.classList.remove('active'));
+                    // Add active to self
+                    btn.classList.add('active');
+                    // Update State
+                    state[stateKey] = btn.dataset.value;
+                    calculate();
+                });
+            });
+        }
+
+        function selectButton(parentId, value) {
+            const parent = document.getElementById(parentId);
+            const btn = parent.querySelector(`.class-btn[data-value="\${value}"]`);
+            if (btn) {
+                btn.click();
+            }
+        }
+
+        // Funciones globales para onclick
+        window.updateBuff = function (delta) {
+            state.buffs += delta;
+            if (state.buffs < 0) state.buffs = 0;
+            if (state.buffs > 5) state.buffs = 5;
+            document.getElementById('buffVal').textContent = state.buffs;
+            calculate();
+        }
+
+        window.updateDebuff = function (delta) {
+            state.debuffs += delta;
+            if (state.debuffs < 0) state.debuffs = 0;
+            if (state.debuffs > 5) state.debuffs = 5;
+            document.getElementById('debuffVal').textContent = state.debuffs;
+            calculate();
+        }
+
+        // CALCULO PRINCIPAL
+        function calculate() {
+            if (!state.damage) {
+                updateResults(0, 0, 0);
+                return;
+            }
+
+            // 1. Modificador de Ataque (Buffs/Debuffs)
+            // Formula: (1 + 0.2 * Buff - 0.2 * Debuff)
+            let attackMod = 1 + (0.2 * state.buffs) - (0.2 * state.debuffs);
+
+            // El daño base se ajusta primero
+            let dmgStep1 = Math.floor(state.damage * attackMod);
+            if (dmgStep1 < 0) dmgStep1 = 0;
+
+            // 2. STAB (Same Type Attack Bonus)
+            let stab = (state.cardClass === state.attackerClass) ? 1.10 : 1.0;
+
+            let dmgStep2 = Math.floor(dmgStep1 * stab);
+
+            // 3. Resultado final contra cada grupo
+            // VS PLANT GROUP (Plant/Reptile/Dusk)
+            let bonusPlant = getBonus(state.cardClass, 'plant');
+            let finalPlant = Math.floor(dmgStep2 * bonusPlant);
+
+            // VS AQUA GROUP (Aqua/Bird/Dawn)
+            let bonusAqua = getBonus(state.cardClass, 'aqua');
+            let finalAqua = Math.floor(dmgStep2 * bonusAqua);
+
+            // VS BEAST GROUP (Beast/Bug/Mech)
+            let bonusBeast = getBonus(state.cardClass, 'beast');
+            let finalBeast = Math.floor(dmgStep2 * bonusBeast);
+
+            updateResults(finalPlant, finalAqua, finalBeast);
+        }
+
+        function updateResults(p, a, b) {
+            document.getElementById('dmg-plant').textContent = p;
+            document.getElementById('dmg-aqua').textContent = a;
+            document.getElementById('dmg-beast').textContent = b;
+        }
+
+    </script>
+</body>
+
+</html>
