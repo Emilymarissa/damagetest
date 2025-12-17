@@ -870,19 +870,33 @@
                 let stab = (card.class === state.attackerClass) ? 1.10 : 1.0;
                 let dmgStep2 = Math.floor(dmgStep1 * stab);
 
-                // 3. Combo Bonus
-                // Formula: (Damage * Skill) / 500
-                // Applied if playing 2 or more cards
+                // 3. Class Advantage
+                const dmgAfterAdv = Math.floor(dmgStep2 * getBonus(card.class, 'plant'));
+                // 4. Combo Bonus (applied after class advantage)
+                let finalDmg = dmgAfterAdv;
                 if (state.parsedCards.length >= 2) {
                     const skill = parseInt(document.getElementById('skillInput').value) || 35;
-                    const comboBonus = Math.floor((dmgStep1 * skill) / 500);
-                    dmgStep2 += comboBonus;
+                    const comboBonus = Math.floor((dmgAfterAdv * skill) / 500);
+                    finalDmg += comboBonus;
                 }
-
-                // 4. Class Advantage
-                totalPlant += Math.floor(dmgStep2 * getBonus(card.class, 'plant'));
-                totalAqua += Math.floor(dmgStep2 * getBonus(card.class, 'aqua'));
-                totalBeast += Math.floor(dmgStep2 * getBonus(card.class, 'beast'));
+                totalPlant += finalDmg;
+                // Repeat for Aqua and Beast groups
+                const dmgAfterAdvAqua = Math.floor(dmgStep2 * getBonus(card.class, 'aqua'));
+                let finalDmgAqua = dmgAfterAdvAqua;
+                if (state.parsedCards.length >= 2) {
+                    const skill = parseInt(document.getElementById('skillInput').value) || 35;
+                    const comboBonus = Math.floor((dmgAfterAdvAqua * skill) / 500);
+                    finalDmgAqua += comboBonus;
+                }
+                totalAqua += finalDmgAqua;
+                const dmgAfterAdvBeast = Math.floor(dmgStep2 * getBonus(card.class, 'beast'));
+                let finalDmgBeast = dmgAfterAdvBeast;
+                if (state.parsedCards.length >= 2) {
+                    const skill = parseInt(document.getElementById('skillInput').value) || 35;
+                    const comboBonus = Math.floor((dmgAfterAdvBeast * skill) / 500);
+                    finalDmgBeast += comboBonus;
+                }
+                totalBeast += finalDmgBeast;
             });
 
             document.getElementById('dmg-plant').textContent = totalPlant;
