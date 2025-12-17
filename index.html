@@ -534,7 +534,11 @@
                     <label
                         style="font-size:9px; color:#8b949e; text-transform:uppercase; font-weight:bold; margin-bottom:2px;">Skill</label>
                     <input type="number" id="skillInput" value="35"
-                        style="width:40px; background:#0d1117; border:1px solid var(--border); color:#fff; border-radius:6px; padding:4px; text-align:center; font-family:monospace; font-weight:bold;">
+                        style="width:40px; background:#0d1117; border:1px solid var(--border); color:#fff; border-radius:6px; padding:4px; text-align:center; font-family:monospace; font-weight:bold;" />
+                    <label
+                        style="font-size:9px; color:#8b949e; text-transform:uppercase; font-weight:bold; margin-top:4px;">
+                        <input type="checkbox" id="gearCheckbox" /> Gear
+                    </label>
                 </div>
             </div>
         </div>
@@ -657,11 +661,32 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Setup Attacker Class Selector
             const atkBtns = document.querySelectorAll('.atk-btn');
+            const skillMap = {
+                aqua: 35,
+                bird: 35,
+                bug: 35,
+                plant: 31,
+                reptile: 31,
+                beast: 31,
+                mech: 43,
+                dawn: 39,
+                dusk: 27
+            };
+
             atkBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     atkBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     state.attackerClass = btn.dataset.value;
+
+                    // Auto-update Skill (base value)
+                    const baseSkill = skillMap[state.attackerClass] || 35;
+                    // Reset gear checkbox when class changes
+                    const gearChk = document.getElementById('gearCheckbox');
+                    if (gearChk) gearChk.checked = false;
+                    const adjustedSkill = gearChk && gearChk.checked ? baseSkill - 10 : baseSkill;
+                    document.getElementById('skillInput').value = adjustedSkill;
+
                     // Re-run parse in case default class changed validation
                     parseCommand(document.getElementById('commandInput').value);
                 });
@@ -677,6 +702,16 @@
             document.getElementById('skillInput').addEventListener('input', () => {
                 recalculate();
             });
+            // Gear Checkbox Listener
+            const gearChk = document.getElementById('gearCheckbox');
+            if (gearChk) {
+                gearChk.addEventListener('change', () => {
+                    const baseSkill = skillMap[state.attackerClass] || 35;
+                    const adjusted = gearChk.checked ? baseSkill - 10 : baseSkill;
+                    document.getElementById('skillInput').value = adjusted;
+                    recalculate();
+                });
+            }
         });
 
         // MODAL LOGIC
